@@ -1,0 +1,19 @@
+# Always added to the context
+#read:
+#  - CONVENTIONS.md
+
+## Default model for main chat
+model: sonnet
+#model: o1
+#model: gpt-4o
+# Gemini gemini/gemini-2.0-flash-exp
+#model: flash
+
+cache-prompts: true
+
+watch-files: true
+
+dark-mode: true
+
+show-release-notes: false
+analytics-disable: true

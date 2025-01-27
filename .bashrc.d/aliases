@@ -1,0 +1,6 @@
+# .bashrc
+
+# Load non-bash specific aliases
+if [ -r $HOME/.aliases ]; then
+  . $HOME/.aliases
+fi
