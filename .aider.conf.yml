@@ -4,14 +4,19 @@
 
 ## Default model for main chat
 model: sonnet
+
+#model: o3-mini
+#reasoning-effort: high
 #model: o1
 #model: gpt-4o
+
 # Gemini gemini/gemini-2.0-flash-exp
 #model: flash
 
 cache-prompts: true
 
-watch-files: true
+# Disabled due to hitting too many open file limits
+watch-files: false
 
 dark-mode: true
 
