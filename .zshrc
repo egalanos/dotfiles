@@ -109,3 +109,5 @@ DISABLE_UPDATE_PROMPT=true
 if [ -f "$HOME/.aliases" ]; then
     . "$HOME/.aliases"
 fi
+
+. "$HOME/.zsh/completion-for-pnpm"
