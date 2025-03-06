@@ -104,3 +104,8 @@ source $ZSH/oh-my-zsh.sh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 DISABLE_AUTO_UPDATE=true
 DISABLE_UPDATE_PROMPT=true
+
+# source aliases if file exists
+if [ -f "$HOME/.aliases" ]; then
+    . "$HOME/.aliases"
+fi
