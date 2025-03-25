@@ -26,3 +26,37 @@ alias ga='git add'
 alias gc='git commit'
 alias gcm='git commit -m'
 alias gp='git push'
+
+gnb() {
+  if [ $# -ne 1 ]; then
+    echo "Usage: fix <branch-suffix>"
+    return 1
+  fi
+
+  git rev-parse --is-inside-work-tree > /dev/null 2>&1 || {
+    echo "❌ Not inside a git repository."
+    return 1
+  }
+
+  branch_suffix="$1"
+  new_branch="egalanos/$branch_suffix"
+
+  # Auto-detect default branch
+  default_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')
+
+  current_branch=$(git rev-parse --abbrev-ref HEAD)
+
+  if [ "$current_branch" != "$default_branch" ]; then
+    echo "❌ You must be on the '$default_branch' branch to run this. (Currently on '$current_branch')"
+    return 1
+  fi
+
+  echo "🔄 Pulling latest changes from '$default_branch'..."
+  git pull || return 1
+
+  echo "🌱 Creating and switching to branch '$new_branch'..."
+  git checkout -b "$new_branch" || return 1
+
+  # Uncomment the line below if you always want to push right after creating
+  # git push -u origin "$new_branch"
+}
