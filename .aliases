@@ -60,3 +60,43 @@ gnb() {
   # Uncomment the line below if you always want to push right after creating
   # git push -u origin "$new_branch"
 }
+
+git-delete-merged-remote-branches() {
+  git fetch --prune
+
+  local branches_to_delete=$(git branch -vv | grep ': gone]' | grep -v "\*\|main\|master" | awk '{print $1}')
+  
+  if [[ -z "$branches_to_delete" ]]; then
+    echo "No branches to delete."
+    return 0
+  fi
+  
+  echo "The following local branches have been merged and deleted on remote:"
+  echo "$branches_to_delete"
+  
+  echo -n "Do you want to delete these branches? (y/N): "
+  read -r response
+  
+  if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+    echo "Deleting branches..."
+    echo "$branches_to_delete" | xargs git branch -d
+    
+    # Check if any branches failed to delete
+    local failed_branches=$(git branch -vv | grep ': gone]' | grep -v "\*\|main\|master" | awk '{print $1}')
+    if [[ -n "$failed_branches" ]]; then
+      echo "Some branches could not be deleted (they may have unmerged changes):"
+      echo "$failed_branches"
+      echo -n "Do you want to force delete these branches? (y/N): "
+      read -r force_response
+      
+      if [[ "$force_response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+        echo "Force deleting remaining branches..."
+        echo "$failed_branches" | xargs git branch -D
+      else
+        echo "Skipped force deletion."
+      fi
+    fi
+  else
+    echo "Operation cancelled."
+  fi
+}
