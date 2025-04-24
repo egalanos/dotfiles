@@ -100,3 +100,5 @@ git-delete-merged-remote-branches() {
     echo "Operation cancelled."
   fi
 }
+
+export EDITOR=vim
