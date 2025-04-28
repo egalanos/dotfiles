@@ -1,4 +1,5 @@
-# .bashrc
+# Common shell RC
+# (currently bash focused, but intended to also be zsh compatible)
 
 alias l.='ls -d .* --color=auto'
 alias ll='ls -l --color=auto'
@@ -27,9 +28,12 @@ alias gc='git commit'
 alias gcm='git commit -m'
 alias gp='git push'
 
+GIT_BRANCH_PREFIX="egalanos/"
+
+# New branch helper
 gnb() {
   if [ $# -ne 1 ]; then
-    echo "Usage: fix <branch-suffix>"
+    echo "Usage: $0 <branch-suffix>"
     return 1
   fi
 
@@ -39,7 +43,7 @@ gnb() {
   }
 
   branch_suffix="$1"
-  new_branch="egalanos/$branch_suffix"
+  new_branch="${GIT_BRANCH_PREFIX}$branch_suffix"
 
   # Auto-detect default branch
   default_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')
@@ -61,26 +65,71 @@ gnb() {
   # git push -u origin "$new_branch"
 }
 
+# Add worktree helper
+gwa() {
+  if [ $# -ne 1 ]; then
+    echo "Usage: $0 <branch>"
+    return 1
+  fi
+  branch_arg="$1"
+
+  git rev-parse --is-inside-work-tree > /dev/null 2>&1 || {
+    echo "❌ Not inside a git repository."
+    return 1
+  }
+
+  # Auto-detect default branch
+  default_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')
+  current_branch=$(git rev-parse --abbrev-ref HEAD)
+
+  if [ "$current_branch" != "$default_branch" ]; then
+    echo "❌ You must be on the '$default_branch' branch to run this. (Currently on '$current_branch')"
+    return 1
+  fi
+
+  echo "🔄 Pulling latest changes from '$default_branch'..."
+  git pull || return 1
+
+  repo_basename=$(basename $(git rev-parse --show-toplevel))
+
+  if [[ "$branch_arg" =~ "/" ]]; then
+    # Assuming a remote branch, we create a nested directory structure
+    worktree_path="../${repo_basename}/$branch_arg"
+    branch_name="$branch_arg"
+    mkdir -p "$(dirname "$worktree_path")"
+  else
+    # Assuming a new local work branch, we add our prefix to the branch name
+    worktree_path="../${repo_basename}-$branch_arg"
+    branch_name="${GIT_BRANCH_PREFIX}$branch_arg"
+  fi
+
+  echo "🌱 Adding worktree branch '$branch_name' at $worktree_path"
+  git worktree add --relative-paths --track "$worktree_path" "$branch_name" || return 1
+
+  # Uncomment the line below if you always want to push right after creating
+  # git push -u origin "$new_branch"
+}
+
 git-delete-merged-remote-branches() {
   git fetch --prune
 
   local branches_to_delete=$(git branch -vv | grep ': gone]' | grep -v "\*\|main\|master" | awk '{print $1}')
-  
+
   if [[ -z "$branches_to_delete" ]]; then
     echo "No branches to delete."
     return 0
   fi
-  
+
   echo "The following local branches have been merged and deleted on remote:"
   echo "$branches_to_delete"
-  
+
   echo -n "Do you want to delete these branches? (y/N): "
   read -r response
-  
+
   if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
     echo "Deleting branches..."
     echo "$branches_to_delete" | xargs git branch -d
-    
+
     # Check if any branches failed to delete
     local failed_branches=$(git branch -vv | grep ': gone]' | grep -v "\*\|main\|master" | awk '{print $1}')
     if [[ -n "$failed_branches" ]]; then
@@ -88,7 +137,7 @@ git-delete-merged-remote-branches() {
       echo "$failed_branches"
       echo -n "Do you want to force delete these branches? (y/N): "
       read -r force_response
-      
+
       if [[ "$force_response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
         echo "Force deleting remaining branches..."
         echo "$failed_branches" | xargs git branch -D
