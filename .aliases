@@ -6,10 +6,24 @@ alias ll='ls -l --color=auto'
 alias ls='ls --color=auto'
 alias la='ls -Al --color=auto'
 
+# Working dir management
 alias ..="cd .."
 alias ...="cd ../.."
 alias ....="cd ../../.."
 alias .....="cd ../../../.."
+
+# Jump to VS code workspace dir
+ws() {
+  if [ -n "${WORKSPACE_DIR}" ]; then
+    if [ -d "${WORKSPACE_DIR}" ]; then
+      cd "${WORKSPACE_DIR}"
+    else
+      echo "Error: ${WORKSPACE_DIR} does not exist."
+    fi
+  else
+    echo "Error: WORKSPACE_DIR is not set."
+  fi
+}
 
 # pnpm
 alias pn='pnpm'
