@@ -43,7 +43,8 @@ alias gc='git commit'
 alias gcm='git commit -m'
 alias gp='git push'
 
-GIT_BRANCH_PREFIX="egalanos/"
+export GITHUB_USER=egalanos
+GIT_BRANCH_PREFIX="${GITHUB_USER}/"
 
 # New branch helper
 gnb() {
