@@ -1,14 +1,16 @@
 alias:
   - "o:openai/o3"
   - "o-mini:openai/o4-mini"
-  - "gemini:vertex_ai/gemini-2.5-pro-preview-03-25"
-  - "flash:vertex_ai/gemini-2.5-flash-preview-04-17"
+  - "gemini:vertex_ai/gemini-2.5-pro-preview-05-06"
+  - "flash:vertex_ai/gemini-2.5-flash-preview-05-20"
   - "gpt:openai/gpt-4.1"
   - "gpt-mini:openai/gpt-4.1-mini"
+  - "sonnet:claude-sonnet-4-20250514"
+  - "opus:claude-opus-4-20250514"
 
 ## Default model
 model: gemini
-#model: sonnet
+weak-model: flash
 
 auto-commits: false
 
@@ -17,7 +19,7 @@ cache-prompts: true
 # Disabled due to hitting too many open file limits
 watch-files: false
 
-#dark-mode: true
+dark-mode: true
 
 show-release-notes: false
 analytics-disable: true
