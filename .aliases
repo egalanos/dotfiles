@@ -34,6 +34,7 @@ alias pt='pnpm test'
 alias pi='pnpm install'
 alias pa='pnpm add'
 alias pad='pnpm add -D'
+alias ptc='pnpm typecheck'
 
 # git
 alias g='git'
