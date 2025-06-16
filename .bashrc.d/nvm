@@ -1,39 +1,54 @@
 # .bashrc
 
+export NVM_DIR="${NVM_DIR:-/usr/local/share/nvm}"
+
 # Load user specific nvm configuration
 if [ -s "$HOME/.nvm/nvm.sh" ]; then
   export NVM_DIR="$HOME/.nvm"
-  . "$NVM_DIR/nvm.sh"  # This loads nvm
-  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+  [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
 fi
+
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 
 # Auto use nvm version based on .nvmrc file
 cdnvm() {
     command cd "$@" || return $?
     nvm_path="$(nvm_find_up .nvmrc | command tr -d '\n')"
 
-    # If there are no .nvmrc file, use the default nvm version
-    if [[ ! $nvm_path = *[^[:space:]]* ]]; then
+    # Check if this is an interactive shell
+    case $- in
+        *i*) interactive=1 ;;
+        *) interactive=0 ;;
+    esac
 
-        declare default_version
+    # If there are no .nvmrc file, use the default nvm version
+    if [ -z "$(echo "$nvm_path" | tr -d '[:space:]')" ]; then
+
         default_version="$(nvm version default)"
 
         # If there is no default version, set it to `node`
         # This will use the latest version on your machine
         if [ "$default_version" = 'N/A' ]; then
-            nvm alias default node
+            if [ "$interactive" = "1" ]; then
+                nvm alias default node
+            else
+                nvm alias default node >/dev/null 2>&1
+            fi
             default_version=$(nvm version default)
         fi
 
         # If the current version is not the default version, set it to use the default version
         if [ "$(nvm current)" != "${default_version}" ]; then
-            nvm use default
+            if [ "$interactive" = "1" ]; then
+                nvm use default
+            else
+                nvm use default >/dev/null 2>&1
+            fi
         fi
-    elif [[ -s "${nvm_path}/.nvmrc" && -r "${nvm_path}/.nvmrc" ]]; then
-        declare nvm_version
-        nvm_version=$(<"${nvm_path}"/.nvmrc)
+    elif [ -s "${nvm_path}/.nvmrc" ] && [ -r "${nvm_path}/.nvmrc" ]; then
+        nvm_version=$(cat "${nvm_path}/.nvmrc")
 
-        declare locally_resolved_nvm_version
         # `nvm ls` will check all locally-available versions
         # If there are multiple matching versions, take the latest one
         # Remove the `->` and `*` characters and spaces
@@ -43,14 +58,23 @@ cdnvm() {
         # If it is not already installed, install it
         # `nvm install` will implicitly use the newly-installed version
         if [ "${locally_resolved_nvm_version}" = 'N/A' ]; then
-            nvm install "${nvm_version}";
+            if [ "$interactive" = "1" ]; then
+                nvm install "${nvm_version}";
+            else
+                nvm install "${nvm_version}" >/dev/null 2>&1;
+            fi
         elif [ "$(nvm current)" != "${locally_resolved_nvm_version}" ]; then
-            nvm use "${nvm_version}";
+            if [ "$interactive" = "1" ]; then
+                nvm use "${nvm_version}";
+            else
+                nvm use "${nvm_version}" >/dev/null 2>&1;
+            fi
         fi
     fi
 }
 
-if [[ $- == *i* ]] && command -v nvm &> /dev/null; then
+# Check if nvm command exists and alias cd to cdnvm
+if command -v nvm >/dev/null 2>&1; then
 	alias cd='cdnvm'
-	cdnvm "$PWD"
+	cdnvm "$PWD" || true
 fi
