@@ -1,0 +1,6 @@
+NVM_INIT_SCRIPT=$HOME/.bashrc.d/nvm
+
+if [[ -r "$NVM_INIT_SCRIPT" ]]
+then
+  . "$NVM_INIT_SCRIPT"
+fi
