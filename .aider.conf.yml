@@ -1,8 +1,8 @@
 alias:
   - "o:openai/o3"
   - "o-mini:openai/o4-mini"
-  - "gemini:vertex_ai/gemini-2.5-pro-preview-05-06"
-  - "flash:vertex_ai/gemini-2.5-flash-preview-05-20"
+  - "gemini:vertex_ai/gemini-2.5-pro"
+  - "flash:vertex_ai/gemini-2.5-flash"
   - "gpt:openai/gpt-4.1"
   - "gpt-mini:openai/gpt-4.1-mini"
   - "sonnet:claude-sonnet-4-20250514"
